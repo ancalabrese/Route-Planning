@@ -3,6 +3,6 @@
 *.o
 draw.cpp
 test.cpp
-build/
+Build/
 bin/
 lib/
