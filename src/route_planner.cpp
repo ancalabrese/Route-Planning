@@ -41,27 +41,21 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node)
     }
     n->parent = current_node;
     n->h_value = CalculateHValue(n);
-    n->g_value = current_node->g_value + 1;
+    n->g_value = current_node->g_value + current_node->distance(*n);
     n->visited = true;
-    RoutePlanner::open_list.emplace_back(n);
+    RoutePlanner::open_list.push_back(n);
   }
 }
 
-bool RoutePlanner::IsEnd(RouteModel::Node *node) { return &node == &end_node; }
+bool RoutePlanner::IsEnd(RouteModel::Node *node) { return node->distance(*end_node) == 0; }
 
 RouteModel::Node *RoutePlanner::NextNode()
 {
-  RouteModel::Node *next_node = *(open_list.begin());
-  for (RouteModel::Node *n : open_list)
-  {
-    if ((next_node->g_value + next_node->h_value) > (n->h_value + n->g_value))
-    {
-      next_node = n;
-    }
-  }
-  open_list.erase(std::remove_if(open_list.begin(), open_list.end(), [next_node](RouteModel::Node *n) {
-    return n->distance(*next_node) == 0;
-  }));
+  std::sort(open_list.begin(), open_list.end(), [](RouteModel::Node *a, RouteModel::Node *b) {
+    return a->g_value + a->h_value > b->g_value + b->h_value;
+  });
+  RouteModel::Node *next_node = open_list.back();
+  open_list.pop_back();
   return next_node;
 }
 
@@ -84,13 +78,14 @@ RoutePlanner::ConstructFinalPath(RouteModel::Node *current_node)
   std::vector<RouteModel::Node> path_found;
   while (current_node->distance(*start_node) != 0)
   {
+    distance += current_node->distance(*current_node->parent);
     path_found.push_back(*current_node);
     current_node = current_node->parent;
   }
-  
 
-  distance *= m_Model.MetricScale(); // Multiply the distance by the scale of
-                                     // the map to get meters.
+  path_found.push_back(*current_node);
+  std::reverse(path_found.begin(), path_found.end());
+  distance *= m_Model.MetricScale();
   return path_found;
 }
 
