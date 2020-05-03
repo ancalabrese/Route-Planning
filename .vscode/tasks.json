@@ -1,0 +1,12 @@
+{
+    "version": "2.0.0",
+    "name":"g++ build active file",
+    "tasks": [
+        {
+            
+            "label": "g++ build active file",
+            "type": "shell",
+            "command": "cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make"
+        }
+    ]
+}
