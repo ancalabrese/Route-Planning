@@ -30,7 +30,7 @@ static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
 }
 
 static void GetCoordinate(float &input){
-    while(!(std::cin >>input)){
+    while( !(std::cin >>input) || input < 0 || input > 100){
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
         std::cout << "Invalid input. Try again: " << std::endl;
